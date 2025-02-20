@@ -1,20 +1,26 @@
 const express = require("express");
-const app = express();
 const cors = require("cors");
 const sql = require("mssql");
-const PORT = 8080;
+
+const app = express();
+const PORT = process.env.PORT || 8080;
+
+// Detect the correct URL (Deployed or Local)
+const DEPLOYED_URL = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : `http://localhost:${PORT}`;
 
 app.use(cors());
 
-// MSSQL configuration
+// MSSQL Configuration
 const dbConfig = {
-  server: "LV-LAP-103",
-  user: "sa",
-  password: "Password@123",
-  database: "DesignSystem",
+  server: process.env.DB_SERVER || "LV-LAP-103",
+  user: process.env.DB_USER || "sa",
+  password: process.env.DB_PASSWORD || "Password@123",
+  database: process.env.DB_NAME || "DesignSystem",
   options: {
-    encrypt: false, // Use this if you're connecting locally without SSL
-    trustServerCertificate: true, // If you're using a self-signed certificate
+    encrypt: false,
+    trustServerCertificate: true,
     port: 1433,
   },
 };
@@ -23,10 +29,11 @@ const dbConfig = {
 sql
   .connect(dbConfig)
   .then(() => {
-    console.log("Connected to the database");
+    console.log("✅ Connected to the database");
+    console.log(`🌍 Backend is live at: ${DEPLOYED_URL}`);
   })
   .catch((err) => {
-    console.error("Database connection failed: ", err);
+    console.error("❌ Database connection failed:", err);
   });
 
 app.get("/", async (req, res) => {
@@ -34,11 +41,12 @@ app.get("/", async (req, res) => {
     const result = await sql.query`SELECT * FROM Employees`;
     res.json(result.recordset);
   } catch (err) {
-    console.error("Error querying the database: ", err);
+    console.error("❌ Error querying the database:", err);
     res.status(500).send("Server error");
   }
 });
 
+// Start the server
 app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
+  console.log(`🚀 Server started at: ${DEPLOYED_URL}`);
 });
