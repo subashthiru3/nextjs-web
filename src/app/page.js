@@ -5,6 +5,7 @@ import styles from "./page.module.css";
 
 function Home() {
   const [designData, setDesignData] = useState([]);
+  console.log("designData", designData);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,14 +32,19 @@ function Home() {
   return (
     <div>
       <div>Hai World</div>
-      <Container>
+      <Container maxWidth={designData.length > 4 ? "lg" : "md"} sx={{ mt: 3 }}>
         <Grid container spacing={3}>
           {designData?.map((employee, index) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={employee.EmployeeID}>
               <Paper
                 elevation={3}
-                className={styles.employeeDetails}
-                sx={{ padding: 2 }}
+                sx={{
+                  padding: 2,
+                  backgroundColor: employee.IsActive ? "white" : "#f5f5f5",
+                  borderLeft: employee.IsActive
+                    ? "5px solid green"
+                    : "5px solid red",
+                }}
               >
                 <Typography variant="h6">
                   {employee.FirstName} {employee.LastName}
